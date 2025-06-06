@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Redirect Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        #log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Dashboard Redirect Test</h1>
+        <p><strong>Purpose:</strong> Test the complete authentication flow and verify dashboard redirect works correctly.</p>
+        
+        <div class="test-section info">
+            <h3>📋 Test Steps</h3>
+            <ol>
+                <li>Register a new user</li>
+                <li>Verify authentication token is stored</li>
+                <li>Test dashboard access</li>
+                <li>Verify redirect behavior</li>
+            </ol>
+        </div>
+
+        <div class="test-section">
+            <h3>🔧 Quick Actions</h3>
+            <button onclick="testRegistration()">Test Registration</button>
+            <button onclick="testLogin()">Test Login</button>
+            <button onclick="testDashboardAccess()">Test Dashboard Access</button>
+            <button onclick="clearStorage()">Clear Storage</button>
+            <button onclick="checkAuthStatus()">Check Auth Status</button>
+        </div>
+
+        <div class="test-section">
+            <h3>🌐 Direct Links</h3>            <p>
+                <a href="http://localhost:3000/register" target="_blank">→ Registration Page</a><br>
+                <a href="http://localhost:3000/login" target="_blank">→ Login Page</a><br>
+                <a href="http://localhost:3000/dashboard" target="_blank">→ Dashboard Page</a><br>
+                <a href="http://localhost:3000" target="_blank">→ Home Page</a>
+            </p>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 Test Log</h3>
+            <div id="log"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000/api';
+        
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? 'red' : type === 'success' ? 'green' : 'blue';
+            logDiv.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        async function testRegistration() {
+            log('🚀 Starting registration test...');
+            const testUser = {
+                username: `testuser${Math.floor(Math.random() * 100000)}`,
+                email: `test${Math.floor(Math.random() * 100000)}@example.com`,
+                password: 'testpassword123',
+                first_name: 'Test',
+                last_name: 'User',
+                user_type: 'worker'
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/users/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testUser)
+                });
+
+                if (response.ok) {
+                    const userData = await response.json();
+                    log(`✅ Registration successful: ${userData.username}`, 'success');
+                    
+                    // Store user data for login test
+                    localStorage.setItem('testUser', JSON.stringify({
+                        username: testUser.username,
+                        password: testUser.password
+                    }));
+                    
+                    return userData;
+                } else {
+                    const error = await response.text();
+                    log(`❌ Registration failed: ${error}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Registration error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testLogin() {
+            log('🔐 Starting login test...');
+            const testUser = JSON.parse(localStorage.getItem('testUser') || '{}');
+            
+            if (!testUser.username) {
+                log('❌ No test user found. Run registration first.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/auth/jwt/create/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: testUser.username,
+                        password: testUser.password
+                    })
+                });
+
+                if (response.ok) {
+                    const tokens = await response.json();
+                    log(`✅ Login successful. Token received.`, 'success');
+                    
+                    // Store tokens like the real app would
+                    localStorage.setItem('access_token', tokens.access);
+                    localStorage.setItem('refresh_token', tokens.refresh);
+                    
+                    return tokens;
+                } else {
+                    const error = await response.text();
+                    log(`❌ Login failed: ${error}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Login error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testDashboardAccess() {
+            log('🏠 Testing dashboard access...');
+            const token = localStorage.getItem('access_token');
+            
+            if (!token) {
+                log('❌ No access token found. Please login first.', 'error');
+                return;
+            }
+
+            try {
+                // Test if we can access user data (what the dashboard would do)
+                const response = await fetch(`${API_URL}/users/me/`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const userData = await response.json();
+                    log(`✅ Dashboard access successful. User: ${userData.username}`, 'success');
+                    log(`📝 User data: ${JSON.stringify(userData)}`, 'info');
+                      // Now test actual dashboard page redirect
+                    log('🔄 Testing dashboard page redirect...', 'info');
+                    window.open('http://localhost:3000/dashboard', '_blank');
+                } else {
+                    log(`❌ Dashboard access failed: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Dashboard access error: ${error.message}`, 'error');
+            }
+        }
+
+        function clearStorage() {
+            localStorage.clear();
+            log('🧹 Local storage cleared.', 'info');
+        }
+
+        function checkAuthStatus() {
+            const token = localStorage.getItem('access_token');
+            const refresh = localStorage.getItem('refresh_token');
+            const testUser = localStorage.getItem('testUser');
+            
+            log('📊 Current authentication status:', 'info');
+            log(`Access Token: ${token ? 'Present' : 'None'}`, token ? 'success' : 'error');
+            log(`Refresh Token: ${refresh ? 'Present' : 'None'}`, refresh ? 'success' : 'error');
+            log(`Test User: ${testUser ? 'Present' : 'None'}`, testUser ? 'success' : 'error');
+        }
+
+        // Initialize
+        log('🔧 Dashboard Redirect Test Tool Initialized');
+        log('💡 Click the buttons above to test different parts of the flow');
+        checkAuthStatus();
+    </script>
+</body>
+</html>

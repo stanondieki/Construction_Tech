@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UjenziIQ Authentication Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background-color: #0056b3; }
+        button:disabled { background-color: #6c757d; cursor: not-allowed; }
+        #results {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .online { background-color: #28a745; }
+        .offline { background-color: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 UjenziIQ Authentication Debug Tool</h1>
+        
+        <div class="test-section info">
+            <h3>🌐 Server Status</h3>
+            <p>
+                <span class="status-indicator" id="backend-status"></span>
+                <strong>Backend:</strong> <span id="backend-url">http://192.168.56.1:8000/api/</span>
+            </p>
+            <p>
+                <span class="status-indicator" id="frontend-status"></span>
+                <strong>Frontend:</strong> <span id="frontend-url">http://192.168.56.1:3002/</span>
+            </p>
+        </div>
+
+        <div class="test-section">
+            <h3>🧪 Authentication Tests</h3>
+            <button onclick="testBackendConnection()">Test Backend Connection</button>
+            <button onclick="testRegistration()">Test Registration Flow</button>
+            <button onclick="testLogin()">Test Login Flow</button>
+            <button onclick="testDashboardAccess()">Test Dashboard Access</button>
+            <button onclick="clearResults()">Clear Results</button>
+        </div>
+
+        <div class="test-section">
+            <h3>🔗 Quick Links</h3>
+            <a href="http://192.168.56.1:3002/register" target="_blank">
+                <button>Open Registration Page</button>
+            </a>
+            <a href="http://192.168.56.1:3002/login" target="_blank">
+                <button>Open Login Page</button>
+            </a>
+            <a href="http://192.168.56.1:3002/dashboard" target="_blank">
+                <button>Open Dashboard</button>
+            </a>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_URL = 'http://192.168.56.1:8000/api/';
+        const FRONTEND_URL = 'http://192.168.56.1:3002/';
+        let testResults = '';
+
+        // Log function to display results
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            testResults += `[${timestamp}] ${message}\n`;
+            document.getElementById('results').textContent = testResults;
+            document.getElementById('results').scrollTop = document.getElementById('results').scrollHeight;
+        }
+
+        function clearResults() {
+            testResults = '';
+            document.getElementById('results').textContent = '';
+        }
+
+        // Test backend connection
+        async function testBackendConnection() {
+            log('🔄 Testing backend connection...', 'info');
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'HEAD',
+                    mode: 'cors'
+                });
+                
+                if (response.ok) {
+                    log('✅ Backend connection successful', 'success');
+                    document.getElementById('backend-status').className = 'status-indicator online';
+                } else {
+                    log(`⚠️ Backend responded with status: ${response.status}`, 'warning');
+                    document.getElementById('backend-status').className = 'status-indicator offline';
+                }
+            } catch (error) {
+                log(`❌ Backend connection failed: ${error.message}`, 'error');
+                document.getElementById('backend-status').className = 'status-indicator offline';
+            }
+        }
+
+        // Test registration
+        async function testRegistration() {
+            log('📝 Testing registration flow...', 'info');
+            
+            const randomId = Math.floor(Math.random() * 100000);
+            const testUser = {
+                username: `testuser${randomId}`,
+                email: `test${randomId}@example.com`,
+                password: 'TestPass123!',
+                password2: 'TestPass123!',
+                first_name: 'Test',
+                last_name: 'User',
+                user_type: 'worker',
+                phone_number: '+1234567890'
+            };
+
+            try {
+                log(`🎯 Attempting to register user: ${testUser.email}`, 'info');
+                
+                const response = await fetch(API_URL + 'users/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testUser)
+                });
+
+                if (response.ok) {
+                    const userData = await response.json();
+                    log(`✅ Registration successful! User ID: ${userData.id}`, 'success');
+                    
+                    // Store for login test
+                    window.testUserEmail = testUser.email;
+                    window.testUserPassword = testUser.password;
+                    
+                    return true;
+                } else {
+                    const errorText = await response.text();
+                    log(`❌ Registration failed (${response.status}): ${errorText}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                log(`❌ Registration network error: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // Test login
+        async function testLogin() {
+            log('🔐 Testing login flow...', 'info');
+            
+            const email = window.testUserEmail || 'test@example.com';
+            const password = window.testUserPassword || 'TestPass123!';
+
+            try {
+                log(`🎯 Attempting to login with: ${email}`, 'info');
+                
+                const response = await fetch(API_URL + 'auth/jwt/create/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (response.ok) {
+                    const tokens = await response.json();
+                    log('✅ Login successful! Tokens received.', 'success');
+                    
+                    // Store token for dashboard test
+                    window.testToken = tokens.access;
+                    localStorage.setItem('token', tokens.access);
+                    
+                    return true;
+                } else {
+                    const errorText = await response.text();
+                    log(`❌ Login failed (${response.status}): ${errorText}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                log(`❌ Login network error: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // Test dashboard access
+        async function testDashboardAccess() {
+            log('🏠 Testing dashboard access...', 'info');
+            
+            const token = window.testToken || localStorage.getItem('token');
+            
+            if (!token) {
+                log('❌ No token available. Please run login test first.', 'error');
+                return false;
+            }
+
+            try {
+                log('🎯 Attempting to fetch user data for dashboard...', 'info');
+                
+                const response = await fetch(API_URL + 'users/me/', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `JWT ${token}`,
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (response.ok) {
+                    const userData = await response.json();
+                    log(`✅ Dashboard access successful! User: ${userData.email}`, 'success');
+                    log('💡 Try opening the dashboard link above to test frontend redirect.', 'info');
+                    return true;
+                } else {
+                    const errorText = await response.text();
+                    log(`❌ Dashboard access failed (${response.status}): ${errorText}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                log(`❌ Dashboard access network error: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // Test server status on page load
+        window.addEventListener('load', () => {
+            log('🚀 UjenziIQ Authentication Debug Tool Loaded', 'info');
+            log('📊 Testing server connectivity...', 'info');
+            testBackendConnection();
+        });
+    </script>
+</body>
+</html>

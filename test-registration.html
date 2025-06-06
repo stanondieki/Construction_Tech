@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registration Test</title>
+</head>
+<body>
+    <h1>Frontend Registration Test</h1>
+    <button onclick="testRegistration()">Test Registration</button>
+    <div id="result"></div>
+
+    <script>
+        async function testRegistration() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            const testUserData = {
+                username: `testuser_${Date.now()}`,
+                email: `test_${Date.now()}@example.com`,
+                password: 'testpass123',
+                password2: 'testpass123',
+                first_name: 'Test',
+                last_name: 'User',
+                user_type: 'worker',
+                organization: 'Test Company',
+                position: 'Tester',
+                phone_number: '+1234567890'
+            };
+            
+            try {
+                // Test with the same API call the frontend makes
+                const response = await fetch('http://localhost:8000/api/users/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testUserData)
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Registration failed:', errorText);
+                    resultDiv.innerHTML = `<p style="color: red;">Registration failed: ${errorText}</p>`;
+                    return;
+                }
+                
+                const userData = await response.json();
+                console.log('Registration successful:', userData);
+                resultDiv.innerHTML = `<p style="color: green;">Registration successful! User ID: ${userData.id}</p>`;
+                
+            } catch (error) {
+                console.error('Network error:', error);
+                resultDiv.innerHTML = `<p style="color: red;">Network error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
