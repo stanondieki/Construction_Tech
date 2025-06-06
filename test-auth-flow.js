@@ -108,10 +108,9 @@ async function testCompleteAuthFlow() {
         return true;
         
     } catch (error) {
-        console.error('❌ Network Error:', error.message);
-        console.log('\n🔧 Troubleshooting:');
+        console.error('❌ Network Error:', error.message);        console.log('\n🔧 Troubleshooting:');
         console.log('   1. Check if Django server is running on port 8000');
-        console.log('   2. Check if Next.js server is running on port 3002');
+        console.log('   2. Check if Next.js server is running on port 3001');
         console.log('   3. Verify network connectivity between servers');
         return false;
     }
@@ -119,10 +118,9 @@ async function testCompleteAuthFlow() {
 
 // Run the test
 testCompleteAuthFlow().then(success => {
-    if (success) {
-        console.log('\n🚀 Next Steps:');
-        console.log('   1. Test registration form at: http://192.168.56.1:3002/register');
-        console.log('   2. Test login form at: http://192.168.56.1:3002/login');
+    if (success) {        console.log('\n🚀 Next Steps:');
+        console.log('   1. Test registration form at: http://localhost:3001/register');
+        console.log('   2. Test login form at: http://localhost:3001/login');
         console.log('   3. Verify dashboard redirect after authentication');
     }
     process.exit(success ? 0 : 1);

@@ -76,10 +76,10 @@
 
         <div class="test-section">
             <h3>🌐 Direct Links</h3>            <p>
-                <a href="http://localhost:3000/register" target="_blank">→ Registration Page</a><br>
-                <a href="http://localhost:3000/login" target="_blank">→ Login Page</a><br>
-                <a href="http://localhost:3000/dashboard" target="_blank">→ Dashboard Page</a><br>
-                <a href="http://localhost:3000" target="_blank">→ Home Page</a>
+                <a href="http://localhost:3001/register" target="_blank">→ Registration Page</a><br>
+                <a href="http://localhost:3001/login" target="_blank">→ Login Page</a><br>
+                <a href="http://localhost:3001/dashboard" target="_blank">→ Dashboard Page</a><br>
+                <a href="http://localhost:3001" target="_blank">→ Home Page</a>
             </p>
         </div>
 
@@ -199,10 +199,9 @@
                 if (response.ok) {
                     const userData = await response.json();
                     log(`✅ Dashboard access successful. User: ${userData.username}`, 'success');
-                    log(`📝 User data: ${JSON.stringify(userData)}`, 'info');
-                      // Now test actual dashboard page redirect
+                    log(`📝 User data: ${JSON.stringify(userData)}`, 'info');                    // Now test actual dashboard page redirect
                     log('🔄 Testing dashboard page redirect...', 'info');
-                    window.open('http://localhost:3000/dashboard', '_blank');
+                    window.open('http://localhost:3001/dashboard', '_blank');
                 } else {
                     log(`❌ Dashboard access failed: ${response.status}`, 'error');
                 }
