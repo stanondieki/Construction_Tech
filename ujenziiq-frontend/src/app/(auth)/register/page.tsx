@@ -5,6 +5,21 @@ import { useAuth } from "@/context/AuthContext";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FormFieldError } from "@/components/forms/FormFieldError";
+import { 
+  Eye, 
+  EyeOff, 
+  Mail, 
+  Lock, 
+  User, 
+  Building2, 
+  Phone, 
+  CheckCircle, 
+  AlertCircle,
+  ArrowRight,
+  Users,
+  BarChart3,
+  Shield
+} from "lucide-react";
 
 export default function RegisterPage() {
   const { register } = useAuth();
