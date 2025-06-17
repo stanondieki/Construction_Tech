@@ -2,14 +2,26 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { projectsAPI } from '@/lib/api/api';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { ProjectCard } from '@/components/projects/ProjectCard';
 import { PlusIcon, SearchIcon } from '@/components/icons/Icons';
 
+interface Project {
+  id: string;
+  name: string;
+  location: string;
+  status: string;
+  progress: number;
+  budget: number;
+  startDate: string;
+  endDate: string;
+  description: string;
+  clientName: string;
+}
+
 export default function ProjectsPage() {
   const [isLoading, setIsLoading] = useState(true);
-  const [projects, setProjects] = useState([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   
