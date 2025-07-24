@@ -34,40 +34,30 @@ type DashboardData = {
   safety: SafetyIncident[];
   stats: DashboardStats;
 };
-
-// Legacy component props types for compatibility
-type LegacyProject = {
-  id: string;
-  name: string;
-  location: string;
-  status: string;
-  progress: number;
-  budget: number;
-  startDate: string;
-  endDate: string;
-  description: string;
-  clientName: string;
-};
-
-type LegacyTask = {
-  id: string;
-  name: string;
-  project: { id: string; name: string };
-  assignee: { id: string; name: string };
-  status: string;
-  priority: string;
-  dueDate: string;
-};
-
-type LegacySafetyIncident = {
-  id: string;
-  title: string;
   project: { id: string; name: string };
   reportedBy: { id: string; name: string };
   status: string;
   severity: string;
   date: string;
   description: string;
+};
+
+type DashboardStats = {
+  totalProjects: number;
+  completedProjects: number;
+  totalTasks: number;
+  completedTasks: number;
+  onHoldProjects: number;
+  delayedTasks: number;
+  safetyIncidents: number;
+  materialUtilization: number;
+};
+
+type DashboardData = {
+  projects: Project[];
+  tasks: Task[];
+  safety: SafetyIncident[];
+  stats: DashboardStats;
 };
 
 export default function Dashboard() {
@@ -88,47 +78,6 @@ export default function Dashboard() {
       safety_incidents: 0,
       material_utilization: 0
     }
-  });
-
-  // Convert API data to legacy format for component compatibility
-  const convertToLegacyProject = (project: Project): LegacyProject => ({
-    id: String(project.id),
-    name: project.name,
-    location: project.location,
-    status: project.status,
-    progress: project.completion_percentage,
-    budget: parseFloat(project.budget),
-    startDate: project.start_date,
-    endDate: project.expected_end_date,
-    description: project.description,
-    clientName: project.client.first_name + ' ' + project.client.last_name
-  });
-
-  const convertToLegacyTask = (task: Task): LegacyTask => ({
-    id: String(task.id),
-    name: task.name,
-    project: { id: String(task.project.id), name: task.project.name },
-    assignee: { 
-      id: String(task.assignees[0]?.id || 0), 
-      name: task.assignees[0] ? `${task.assignees[0].first_name} ${task.assignees[0].last_name}` : 'Unassigned'
-    },
-    status: task.status,
-    priority: task.priority,
-    dueDate: task.due_date
-  });
-
-  const convertToLegacySafetyIncident = (incident: SafetyIncident): LegacySafetyIncident => ({
-    id: String(incident.id),
-    title: incident.title,
-    project: { id: String(incident.project.id), name: incident.project.name },
-    reportedBy: { 
-      id: String(incident.reported_by.id), 
-      name: `${incident.reported_by.first_name} ${incident.reported_by.last_name}`
-    },
-    status: incident.status,
-    severity: incident.severity,
-    date: incident.reported_date,
-    description: incident.description
   });
 
   useEffect(() => {
@@ -203,16 +152,113 @@ export default function Dashboard() {
     total_tasks, 
     completed_tasks,
     on_hold_projects,
+    delayed_tasks,
+    safety_incidents,
     material_utilization
   } = dashboardData.stats;
 
   const projectCompletionRate = calculatePercentage(completed_projects, total_projects);
   const taskCompletionRate = calculatePercentage(completed_tasks, total_tasks);
+              assignee: { id: '1', name: 'John Doe' },
+              status: 'completed',
+              priority: 'high',
+              dueDate: '2023-04-15',
+            },
+            {
+              id: '2',
+              name: 'Electrical wiring installation',
+              project: { id: '1', name: 'Residential Complex' },
+              assignee: { id: '2', name: 'Jane Smith' },
+              status: 'in_progress',
+              priority: 'medium',
+              dueDate: '2023-06-30',
+            },
+            {
+              id: '3',
+              name: 'Site survey and mapping',
+              project: { id: '2', name: 'Commercial Tower' },
+              assignee: { id: '3', name: 'David Kimani' },
+              status: 'pending',
+              priority: 'high',
+              dueDate: '2023-03-15',
+            },
+            {
+              id: '4',
+              name: 'Environmental impact assessment',
+              project: { id: '3', name: 'Highway Expansion' },
+              assignee: { id: '4', name: 'Grace Mwangi' },
+              status: 'blocked',
+              priority: 'high',
+              dueDate: '2023-01-30',
+            },
+          ],
+          safety: [
+            {
+              id: '1',
+              title: 'Falling debris incident',
+              project: { id: '1', name: 'Residential Complex' },
+              reportedBy: { id: '2', name: 'Jane Smith' },
+              status: 'under_investigation',
+              severity: 'medium',
+              date: '2023-05-10',
+              description: 'Worker narrowly missed by falling debris from scaffold',
+            },
+            {
+              id: '2',
+              title: 'Equipment malfunction',
+              project: { id: '3', name: 'Highway Expansion' },
+              reportedBy: { id: '4', name: 'Grace Mwangi' },
+              status: 'resolved',
+              severity: 'low',
+              date: '2023-02-22',
+              description: 'Crane hydraulic system failure during non-operational hours',
+            },
+          ],
+          stats: {
+            totalProjects: 5,
+            completedProjects: 1,
+            totalTasks: 28,
+            completedTasks: 15,
+            onHoldProjects: 1,
+            delayedTasks: 4,
+            safetyIncidents: 3,
+            materialUtilization: 78
+          }
+        };
+        
+        setDashboardData(mockData);
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+        // Handle error state here
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  // Convert data for legacy components
-  const legacyProjects = dashboardData.projects.map(convertToLegacyProject);
-  const legacyTasks = dashboardData.tasks.map(convertToLegacyTask);
-  const legacySafetyIncidents = dashboardData.safety.map(convertToLegacySafetyIncident);
+    fetchDashboardData();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  const { 
+    totalProjects, 
+    completedProjects, 
+    totalTasks, 
+    completedTasks,
+    onHoldProjects,
+    delayedTasks,
+    safetyIncidents,
+    materialUtilization
+  } = dashboardData.stats;
+
+  const projectCompletionRate = calculatePercentage(completedProjects, totalProjects);
+  const taskCompletionRate = calculatePercentage(completedTasks, totalTasks);
 
   return (
     <div className="space-y-6">
@@ -223,7 +269,7 @@ export default function Dashboard() {
         <DashboardCard 
           title="Project Completion" 
           value={`${projectCompletionRate}%`}
-          description={`${completed_projects} of ${total_projects} Projects`}
+          description={`${completedProjects} of ${totalProjects} Projects`}
           icon={CheckCircleIcon}
           trend={projectCompletionRate > 50 ? 'up' : 'neutral'}
           trendText={projectCompletionRate > 50 ? 'On track' : 'Needs attention'}
@@ -232,7 +278,7 @@ export default function Dashboard() {
         <DashboardCard 
           title="Task Completion" 
           value={`${taskCompletionRate}%`}
-          description={`${completed_tasks} of ${total_tasks} Tasks`}
+          description={`${completedTasks} of ${totalTasks} Tasks`}
           icon={ClockIcon}
           trend={taskCompletionRate > 70 ? 'up' : 'neutral'}
           trendText={taskCompletionRate > 70 ? 'Good progress' : 'Needs focus'}
@@ -240,21 +286,21 @@ export default function Dashboard() {
         
         <DashboardCard 
           title="Projects On Hold" 
-          value={on_hold_projects}
-          description={`${calculatePercentage(on_hold_projects, total_projects)}% of all projects`}
+          value={onHoldProjects}
+          description={`${calculatePercentage(onHoldProjects, totalProjects)}% of all projects`}
           icon={AlertCircleIcon}
-          trend={on_hold_projects > 0 ? 'down' : 'up'}
-          trendText={on_hold_projects > 0 ? 'Requires attention' : 'All projects active'}
-          isDanger={on_hold_projects > 0}
+          trend={onHoldProjects > 0 ? 'down' : 'up'}
+          trendText={onHoldProjects > 0 ? 'Requires attention' : 'All projects active'}
+          isDanger={onHoldProjects > 0}
         />
         
         <DashboardCard 
           title="Material Utilization" 
-          value={`${material_utilization}%`}
+          value={`${materialUtilization}%`}
           description="Resource efficiency"
           icon={TrendingUpIcon}
-          trend={material_utilization > 75 ? 'up' : 'down'}
-          trendText={material_utilization > 75 ? 'Efficient usage' : 'Overuse detected'}
+          trend={materialUtilization > 75 ? 'up' : 'down'}
+          trendText={materialUtilization > 75 ? 'Efficient usage' : 'Overuse detected'}
         />
       </div>
       
@@ -263,7 +309,7 @@ export default function Dashboard() {
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-4">Project Progress</h3>
           <div className="h-64">
-            <ProjectProgressChart projects={legacyProjects} />
+            <ProjectProgressChart projects={dashboardData.projects} />
           </div>
         </div>
         
@@ -288,11 +334,11 @@ export default function Dashboard() {
         </div>
         
         <div className="divide-y divide-gray-200">
-          {legacyProjects.length === 0 ? (
+          {dashboardData.projects.length === 0 ? (
             <p className="py-4 text-center text-gray-500">No projects found</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-              {legacyProjects.slice(0, 3).map((project) => (
+              {dashboardData.projects.slice(0, 3).map((project) => (
                 <ProjectCard key={project.id} project={project} />
               ))}
               
@@ -325,11 +371,11 @@ export default function Dashboard() {
           </div>
           
           <div className="divide-y divide-gray-200">
-            {legacyTasks.length === 0 ? (
+            {dashboardData.tasks.length === 0 ? (
               <p className="py-4 text-center text-gray-500">No tasks found</p>
             ) : (
               <ul className="divide-y divide-gray-200">
-                {legacyTasks.slice(0, 4).map((task) => (
+                {dashboardData.tasks.slice(0, 4).map((task) => (
                   <TaskListItem key={task.id} task={task} />
                 ))}
               </ul>
@@ -349,12 +395,12 @@ export default function Dashboard() {
             </Link>
           </div>
           
-          <div className="divide-y divide-gray-200">
-            {legacySafetyIncidents.length === 0 ? (
+          <div className="divide-y divide-gray-200 p-4">
+            {dashboardData.safety.length === 0 ? (
               <p className="py-4 text-center text-gray-500">No safety incidents reported</p>
             ) : (
-              <div className="p-4 space-y-4">
-                {legacySafetyIncidents.slice(0, 3).map((incident) => (
+              <div className="space-y-4">
+                {dashboardData.safety.map((incident) => (
                   <SafetyIncidentCard key={incident.id} incident={incident} />
                 ))}
               </div>

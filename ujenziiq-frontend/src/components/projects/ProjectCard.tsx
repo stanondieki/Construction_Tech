@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { formatDate, formatCurrency, calculatePercentage, getStatusColor, cn } from '@/lib/utils/helpers';
+import { formatDate, formatCurrency, getStatusColor, cn } from '@/lib/utils/helpers';
 
 type Project = {
   id: string;

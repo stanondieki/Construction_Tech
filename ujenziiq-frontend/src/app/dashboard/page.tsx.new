@@ -37,12 +37,12 @@ type DashboardData = {
 
 // Legacy component props types for compatibility
 type LegacyProject = {
-  id: string;
+  id: number | string;
   name: string;
   location: string;
   status: string;
   progress: number;
-  budget: number;
+  budget: number | string;
   startDate: string;
   endDate: string;
   description: string;
@@ -50,20 +50,20 @@ type LegacyProject = {
 };
 
 type LegacyTask = {
-  id: string;
+  id: number | string;
   name: string;
-  project: { id: string; name: string };
-  assignee: { id: string; name: string };
+  project: { id: number | string; name: string };
+  assignee: { id: number | string; name: string };
   status: string;
   priority: string;
   dueDate: string;
 };
 
 type LegacySafetyIncident = {
-  id: string;
+  id: number | string;
   title: string;
-  project: { id: string; name: string };
-  reportedBy: { id: string; name: string };
+  project: { id: number | string; name: string };
+  reportedBy: { id: number | string; name: string };
   status: string;
   severity: string;
   date: string;
@@ -92,7 +92,7 @@ export default function Dashboard() {
 
   // Convert API data to legacy format for component compatibility
   const convertToLegacyProject = (project: Project): LegacyProject => ({
-    id: String(project.id),
+    id: project.id,
     name: project.name,
     location: project.location,
     status: project.status,
@@ -105,11 +105,11 @@ export default function Dashboard() {
   });
 
   const convertToLegacyTask = (task: Task): LegacyTask => ({
-    id: String(task.id),
+    id: task.id,
     name: task.name,
-    project: { id: String(task.project.id), name: task.project.name },
+    project: { id: task.project.id, name: task.project.name },
     assignee: { 
-      id: String(task.assignees[0]?.id || 0), 
+      id: task.assignees[0]?.id || 0, 
       name: task.assignees[0] ? `${task.assignees[0].first_name} ${task.assignees[0].last_name}` : 'Unassigned'
     },
     status: task.status,
@@ -118,11 +118,11 @@ export default function Dashboard() {
   });
 
   const convertToLegacySafetyIncident = (incident: SafetyIncident): LegacySafetyIncident => ({
-    id: String(incident.id),
+    id: incident.id,
     title: incident.title,
-    project: { id: String(incident.project.id), name: incident.project.name },
+    project: { id: incident.project.id, name: incident.project.name },
     reportedBy: { 
-      id: String(incident.reported_by.id), 
+      id: incident.reported_by.id, 
       name: `${incident.reported_by.first_name} ${incident.reported_by.last_name}`
     },
     status: incident.status,
@@ -203,6 +203,8 @@ export default function Dashboard() {
     total_tasks, 
     completed_tasks,
     on_hold_projects,
+    delayed_tasks,
+    safety_incidents,
     material_utilization
   } = dashboardData.stats;
 

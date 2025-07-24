@@ -54,7 +54,7 @@ export default function TestRegistrationPage() {
     
     // Import the useAuth hook dynamically
     try {
-      const { useAuth } = await import('@/context/AuthContext');
+      await import('@/context/AuthContext');
       // This won't work directly since we need to be inside the AuthProvider
       setResult('❌ Cannot test AuthContext directly outside of provider');
     } catch (error) {

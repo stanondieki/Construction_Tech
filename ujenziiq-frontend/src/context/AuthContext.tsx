@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { authAPI } from '@/lib/api/api';
+import { AuthAPI, UsersAPI } from '@/lib/api/services';
 
 type User = {
   id: string;
@@ -67,18 +67,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (storedToken) {
         setToken(storedToken);
         try {
-          const response = await authAPI.getUser();
+          const response = await UsersAPI.getCurrentUser();
           
           // Transform backend user data to our frontend format
           const userData = {
-            id: response.data.id,
-            username: response.data.username,
-            email: response.data.email,
-            firstName: response.data.first_name,
-            lastName: response.data.last_name,
-            userType: response.data.user_type,
-            organization: response.data.organization,
-            position: response.data.position,
+            id: String(response.id),
+            username: response.username,
+            email: response.email,
+            firstName: response.first_name,
+            lastName: response.last_name,
+            userType: response.role,
+            organization: undefined, // Not available in User type
+            position: undefined, // Not available in User type
           };
           
           setUser(userData);
@@ -96,8 +96,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
     const login = async (email: string, password: string) => {
     try {
-      const response = await authAPI.login(email, password);
-      const { access } = response.data;
+      const response = await AuthAPI.login({ email, password });
+      const { access } = response;
       
       // Store token in localStorage for client-side access
       localStorage.setItem('token', access);
@@ -109,18 +109,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setToken(access);
       
       // Fetch user data after successful login
-      const userResponse = await authAPI.getUser();
+      const userResponse = await UsersAPI.getCurrentUser();
       
       // Transform backend user data to our frontend format
       const userData = {
-        id: userResponse.data.id,
-        username: userResponse.data.username,
-        email: userResponse.data.email,
-        firstName: userResponse.data.first_name,
-        lastName: userResponse.data.last_name,
-        userType: userResponse.data.user_type,
-        organization: userResponse.data.organization,
-        position: userResponse.data.position,
+        id: String(userResponse.id),
+        username: userResponse.username,
+        email: userResponse.email,
+        firstName: userResponse.first_name,
+        lastName: userResponse.last_name,
+        userType: userResponse.role,
+        organization: undefined, // Not available in User type
+        position: undefined, // Not available in User type
       };
       
       setUser(userData);
@@ -132,7 +132,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const register = async (userData: RegisterUserData) => {
     try {
       console.log("AuthContext: Starting registration with data:", { ...userData, password: "***", password2: "***" });
-      const response = await authAPI.register(userData);
+      
+      // Transform to match API expectations
+      const apiUserData = {
+        username: userData.username,
+        email: userData.email,
+        password: userData.password,
+        first_name: userData.first_name,
+        last_name: userData.last_name,
+        phone: userData.phone_number,
+      };
+      
+      const response = await AuthAPI.register(apiUserData);
       console.log("AuthContext: Registration API response:", response);
       
       // After registration, login automatically

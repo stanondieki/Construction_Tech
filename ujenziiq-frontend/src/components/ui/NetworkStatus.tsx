@@ -30,14 +30,14 @@ export default function NetworkStatus() {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
         
-        const response = await fetch('/api/ping', {
+        await fetch('/api/ping', {
           method: 'HEAD',
           signal: controller.signal
         });
         
         clearTimeout(timeoutId);
         setIsOnline(true);
-      } catch (error) {
+      } catch {
         setIsOnline(false);
       }
     };

@@ -3,9 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
-  Bell, Check, Archive, Trash2, Filter, 
+  Bell, Check, Archive, 
   AlertCircle, CheckCircle, Info, AlertTriangle,
-  Clock, User, Building, Calendar
+  Clock, User, Building
 } from 'lucide-react';
 
 interface Notification {
@@ -326,7 +326,7 @@ export default function NotificationsPage() {
             <div className="flex space-x-3">
               <select
                 value={filter}
-                onChange={(e) => setFilter(e.target.value as any)}
+                onChange={(e) => setFilter(e.target.value as 'all' | 'unread' | 'archived')}
                 className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">All</option>
@@ -336,7 +336,7 @@ export default function NotificationsPage() {
               
               <select
                 value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value as any)}
+                onChange={(e) => setCategoryFilter(e.target.value as 'all' | 'project' | 'task' | 'safety' | 'message' | 'system')}
                 className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">All Categories</option>

@@ -155,12 +155,13 @@ export default function SystemStatusPage() {
     try {
       await register(testUserData);
       addTestResult('✅ AuthContext registration successful!');
-    } catch (error: any) {
+    } catch (error: unknown) {
       let errorMessage = 'Unknown error';
       
-      if (error?.response?.data) {
-        errorMessage = JSON.stringify(error.response.data);
-      } else if (error?.message) {
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response: { data: unknown } };
+        errorMessage = JSON.stringify(axiosError.response.data);
+      } else if (error instanceof Error) {
         errorMessage = error.message;
       }
       
@@ -204,7 +205,7 @@ export default function SystemStatusPage() {
           <div className="space-y-2">
             <p><strong>Auth Loading:</strong> {authLoading ? 'Yes' : 'No'}</p>
             <p><strong>Current User:</strong> {user ? `${user.username} (${user.email})` : 'Not logged in'}</p>
-            <p><strong>Register Function:</strong> {register ? 'Available' : 'Not available'}</p>
+            <p><strong>Register Function:</strong> {typeof register === 'function' ? 'Available' : 'Not available'}</p>
           </div>
         </div>
 
