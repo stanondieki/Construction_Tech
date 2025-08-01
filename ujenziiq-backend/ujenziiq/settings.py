@@ -30,7 +30,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-ymoo0$2w8p=8(o=^h8d$7vrv((
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost,192.168.56.1,0.0.0.0,django-app-production-8e3a.up.railway.app').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost,192.168.56.1,0.0.0.0,django-app-production-8e3a.up.railway.app,.vercel.app').split(',')
 
 
 # Application definition
