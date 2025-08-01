@@ -97,11 +97,15 @@ if os.getenv('DATABASE_URL'):
         'default': dj_database_url.parse(os.getenv('DATABASE_URL'))
     }
 else:
-    # Development database (SQLite)
+    # Development database (SQLite) - ensure directory exists
+    import os
+    db_path = BASE_DIR / "db.sqlite3"
+    os.makedirs(db_path.parent, exist_ok=True)
+    
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
+            "NAME": db_path,
         }
     }
 
