@@ -175,7 +175,9 @@ CORS_ALLOWED_ORIGINS = [
     "http://192.168.56.1:3002",
     "https://ujenziiq-5bq30ug80-stanondiekis-projects.vercel.app",  # Your first Vercel URL
     "https://ujenziiq-qo3kwybu5-stanondiekis-projects.vercel.app",  # Your updated Vercel URL
-    "https://ujenziiq-mlt0f9h2r-stanondiekis-projects.vercel.app",  # Latest Vercel URL
+    "https://ujenziiq-mlt0f9h2r-stanondiekis-projects.vercel.app",  # Previous Vercel URL
+    "https://ujenziiq-l3nmlwo7q-stanondiekis-projects.vercel.app",  # Another Vercel URL
+    "https://ujenziiq-bhcc3ns4n-stanondiekis-projects.vercel.app",  # Latest Vercel URL
     "https://ujenziiq.vercel.app",  # Production domain
 ]
 
