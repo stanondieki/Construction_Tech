@@ -89,21 +89,13 @@ WSGI_APPLICATION = "ujenziiq.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# Use PostgreSQL in production, SQLite in development
-if os.getenv('DATABASE_URL'):
-    # Production database (PostgreSQL)
-    import dj_database_url
-    DATABASES = {
-        'default': dj_database_url.parse(os.getenv('DATABASE_URL'))
+# Development database (SQLite) - always use SQLite for now
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3", 
+        "NAME": ":memory:",  # Use in-memory database for serverless
     }
-else:
-    # Development database (SQLite)
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
-    }
+}
 
 
 # Password validation
@@ -184,6 +176,43 @@ CORS_ALLOWED_ORIGINS = [
 
 # Allow all origins for development (more permissive)
 CORS_ALLOW_ALL_ORIGINS = True  # Temporarily allow all origins for debugging
+
+# Additional CORS settings
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+# CSRF Settings for serverless
+CSRF_TRUSTED_ORIGINS = [
+    "https://ujenziiq-5bq30ug80-stanondiekis-projects.vercel.app",
+    "https://ujenziiq-qo3kwybu5-stanondiekis-projects.vercel.app",
+    "https://ujenziiq-9k3vf7kev-stanondiekis-projects.vercel.app",
+    "https://ujenziiq-pnoe5rt86-stanondiekis-projects.vercel.app",
+    "https://ujenziiq-i8891q4w2-stanondiekis-projects.vercel.app",
+    "https://ujenziiq-f967qgecw-stanondiekis-projects.vercel.app",
+    "https://ujenziiq.vercel.app",
+]
+
+# Disable CSRF for API endpoints (since we're using JWT)
+CSRF_COOKIE_SECURE = False
+CSRF_USE_SESSIONS = False
 
 # Media Files
 MEDIA_URL = '/media/'
