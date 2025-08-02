@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import { formatCurrency } from '@/lib/utils/helpers';
+// Chart component placeholder
 
 // In a real implementation, we would import a chart library like Chart.js, D3, or Recharts
 // For this implementation, we'll use a simple placeholder with HTML/CSS

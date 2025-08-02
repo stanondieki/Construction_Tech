@@ -2,14 +2,29 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { tasksAPI } from '@/lib/api/api';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
-import { PlusIcon, SearchIcon, FilterIcon } from '@/components/icons/Icons';
+import { PlusIcon, SearchIcon } from '@/components/icons/Icons';
 import { TaskListItem } from '@/components/tasks/TaskListItem';
+
+type Task = {
+  id: string;
+  name: string;
+  project: {
+    id: string;
+    name: string;
+  };
+  assignee: {
+    id: string;
+    name: string;
+  };
+  status: string;
+  priority: string;
+  dueDate: string;
+};
 
 export default function TasksPage() {
   const [isLoading, setIsLoading] = useState(true);
-  const [tasks, setTasks] = useState([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');

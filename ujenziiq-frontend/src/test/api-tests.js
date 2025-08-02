@@ -5,7 +5,7 @@
  * Run with: node src/test/api-tests.js
  */
 
-const axios = require('axios');
+import axios from 'axios';
 
 const API_URL = 'http://localhost:8000/api/';
 
@@ -71,7 +71,7 @@ async function testLoginFormats() {
     
     // Test login format 1: Using 'email' field
     try {
-      const response1 = await axios.post(API_URL + 'auth/jwt/create/', {
+      await axios.post(API_URL + 'auth/jwt/create/', {
         email,
         password
       });
@@ -83,7 +83,7 @@ async function testLoginFormats() {
     
     // Test login format 2: Using 'username' field with email value
     try {
-      const response2 = await axios.post(API_URL + 'auth/jwt/create/', {
+      await axios.post(API_URL + 'auth/jwt/create/', {
         username: email,
         password
       });
@@ -95,7 +95,7 @@ async function testLoginFormats() {
     
     // Test login format 3: Using actual username
     try {
-      const response3 = await axios.post(API_URL + 'auth/jwt/create/', {
+      await axios.post(API_URL + 'auth/jwt/create/', {
         username,
         password
       });

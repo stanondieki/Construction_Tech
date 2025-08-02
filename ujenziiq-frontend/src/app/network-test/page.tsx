@@ -19,7 +19,7 @@ export default function NetworkStatusTest() {
           signal: AbortSignal.timeout(5000)
         });
         setApiReachable(response.ok);
-      } catch (error) {
+      } catch {
         setApiReachable(false);
       }
     };
@@ -67,14 +67,15 @@ export default function NetworkStatusTest() {
       const response = await api.post('users/', testUserData);
       setTestResult(`✅ Direct axios registration successful! User ID: ${response.data.id}`);
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       let errorMessage = 'Unknown error';
       
-      if (error.response) {
-        errorMessage = `HTTP ${error.response.status}: ${JSON.stringify(error.response.data)}`;
-      } else if (error.request) {
-        errorMessage = `Network error: ${error.message}`;
-      } else {
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response: { status: number; data: unknown } };
+        errorMessage = `HTTP ${axiosError.response.status}: ${JSON.stringify(axiosError.response.data)}`;
+      } else if (error && typeof error === 'object' && 'request' in error) {
+        errorMessage = 'Network error: Request failed';
+      } else if (error instanceof Error) {
         errorMessage = error.message;
       }
       
@@ -124,7 +125,7 @@ export default function NetworkStatusTest() {
             <h3 className="font-semibold mb-2">Environment Info:</h3>
             <p><strong>API URL:</strong> {process.env.NEXT_PUBLIC_API_URL}</p>
             <p><strong>User Agent:</strong> {navigator.userAgent}</p>
-            <p><strong>Connection:</strong> {(navigator as any).connection?.effectiveType || 'Unknown'}</p>
+            <p><strong>Connection:</strong> {(navigator as { connection?: { effectiveType?: string } }).connection?.effectiveType || 'Unknown'}</p>
           </div>
         </div>
       </div>

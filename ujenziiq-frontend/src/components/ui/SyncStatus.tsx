@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { offlineStorage } from '@/lib/utils/offlineStorage';
 
 /**
@@ -38,7 +38,7 @@ export default function SyncStatus() {
   };
 
   // Function to manually trigger sync
-  const triggerSync = async () => {
+  const triggerSync = useCallback(async () => {
     if (!isOnline || isSyncing) return;
     
     setIsSyncing(true);
@@ -51,7 +51,7 @@ export default function SyncStatus() {
       setIsSyncing(false);
       updatePendingCount();
     }, 3000);
-  };
+  }, [isOnline, isSyncing]);
   
   const updatePendingCount = () => {
     const operations = offlineStorage.getPendingOperations();
@@ -101,7 +101,7 @@ export default function SyncStatus() {
       window.removeEventListener('ujenziiq:operation-queued', handleOperationQueued);
       window.removeEventListener('ujenziiq:operation-synced', handleOperationSynced);
     };
-  }, []);
+  }, [triggerSync]);
   
   // Don't render anything if there are no pending operations
   if (pendingCount === 0) {

@@ -2,9 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { materialsAPI } from '@/lib/api/api';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
-import { PlusIcon, SearchIcon, DownloadIcon, UploadIcon, FilterIcon } from '@/components/icons/Icons';
+import { PlusIcon, SearchIcon, DownloadIcon } from '@/components/icons/Icons';
 import { formatCurrency } from '@/lib/utils/helpers';
 
 // Material type definition

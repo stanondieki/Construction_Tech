@@ -3,9 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { projectsAPI, tasksAPI } from '@/lib/api/api';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
-import { formatDate, formatCurrency, calculatePercentage, getStatusColor, cn } from '@/lib/utils/helpers';
+import { formatDate, formatCurrency, getStatusColor, cn } from '@/lib/utils/helpers';
 import { 
   EditIcon, 
   ClockIcon, 
@@ -15,19 +14,70 @@ import {
 } from '@/components/icons/Icons';
 import { TaskListItem } from '@/components/tasks/TaskListItem';
 
-export default function ProjectDetailPage({ params }: { params: { id: string } }) {
+type Project = {
+  id: string;
+  name: string;
+  location: string;
+  status: string;
+  progress: number;
+  budget: number;
+  startDate: string;
+  endDate: string;
+  description: string;
+  clientName: string;
+  manager: {
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+  };
+  team: Array<{
+    id: string;
+    name: string;
+    role: string;
+  }>;
+};
+
+type Task = {
+  id: string;
+  name: string;
+  project: {
+    id: string;
+    name: string;
+  };
+  assignee: {
+    id: string;
+    name: string;
+  };
+  status: string;
+  priority: string;
+  dueDate: string;
+};
+
+export default function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const [isLoading, setIsLoading] = useState(true);
-  const [project, setProject] = useState<any>(null);
-  const [tasks, setTasks] = useState([]);
+  const [project, setProject] = useState<Project | null>(null);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [projectId, setProjectId] = useState<string>('');
   
   useEffect(() => {
+    const getParams = async () => {
+      const resolvedParams = await params;
+      setProjectId(resolvedParams.id);
+    };
+    getParams();
+  }, [params]);
+  
+  useEffect(() => {
+    if (!projectId) return;
+    
     const fetchProjectData = async () => {
       setIsLoading(true);
       try {
         // In a real implementation, this would be:
-        // const projectResponse = await projectsAPI.getById(params.id);
+        // const projectResponse = await projectsAPI.getById(projectId);
         // setProject(projectResponse.data);
-        // const tasksResponse = await projectsAPI.getTasks(params.id);
+        // const tasksResponse = await projectsAPI.getTasks(projectId);
         // setTasks(tasksResponse.data);
         
         // Mock data for demonstration
@@ -98,7 +148,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
         ];
         
         // Find the project with the matching ID
-        const foundProject = mockProjects.find(p => p.id === params.id);
+        const foundProject = mockProjects.find(p => p.id === projectId);
         if (!foundProject) {
           notFound();
         }
@@ -106,7 +156,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
         setProject(foundProject);
         
         // Filter tasks for this project
-        const projectTasks = mockTasks.filter(t => t.project.id === params.id);
+        const projectTasks = mockTasks.filter(t => t.project.id === projectId);
         setTasks(projectTasks);
       } catch (error) {
         console.error('Error fetching project data:', error);
@@ -117,7 +167,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
     };
 
     fetchProjectData();
-  }, [params.id]);
+  }, [projectId]);
 
   if (isLoading) {
     return (
@@ -132,7 +182,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
   }
 
   // Format status for display
-  const displayStatus = project.status.replace('_', ' ').replace(/\b\w/g, (match) => match.toUpperCase());
+  const displayStatus = project.status.replace('_', ' ').replace(/\b\w/g, (match: string) => match.toUpperCase());
 
   const tasksByStatus = {
     completed: tasks.filter(t => t.status === 'completed').length,
@@ -143,7 +193,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
 
   const EditButton = (
     <Link
-      href={`/dashboard/projects/${params.id}/edit`}
+      href={`/dashboard/projects/${projectId}/edit`}
       className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
     >
       <EditIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
@@ -283,7 +333,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
                 
                 <div className="space-y-2">
                   <Link 
-                    href={`/dashboard/projects/${params.id}/tasks/new`}
+                    href={`/dashboard/projects/${projectId}/tasks/new`}
                     className="block w-full text-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
                   >
                     <PlusIcon className="inline-block -ml-1 mr-2 h-5 w-5" />
@@ -291,14 +341,14 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
                   </Link>
                   
                   <Link 
-                    href={`/dashboard/projects/${params.id}/reports/new`}
+                    href={`/dashboard/projects/${projectId}/reports/new`}
                     className="block w-full text-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
                   >
                     Create Report
                   </Link>
                   
                   <Link 
-                    href={`/dashboard/projects/${params.id}/materials`}
+                    href={`/dashboard/projects/${projectId}/materials`}
                     className="block w-full text-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
                   >
                     Manage Materials
@@ -315,7 +365,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
         <div className="px-4 py-5 sm:px-6 border-b border-gray-200 flex items-center justify-between">
           <h3 className="text-lg font-medium text-gray-900">Tasks</h3>
           <Link 
-            href={`/dashboard/projects/${params.id}/tasks`}
+            href={`/dashboard/projects/${projectId}/tasks`}
             className="text-sm font-medium text-blue-600 hover:text-blue-500"
           >
             View all tasks
@@ -327,7 +377,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
             <div className="p-6 text-center">
               <p className="text-gray-500 mb-4">No tasks found for this project</p>
               <Link 
-                href={`/dashboard/projects/${params.id}/tasks/new`}
+                href={`/dashboard/projects/${projectId}/tasks/new`}
                 className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
               >
                 <PlusIcon className="-ml-1 mr-2 h-5 w-5" />

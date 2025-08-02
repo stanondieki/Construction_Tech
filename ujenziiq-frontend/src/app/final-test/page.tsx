@@ -65,12 +65,14 @@ export default function FinalTestPage() {
         setIsLoading(false);
       }, 2000);
 
-    } catch (error: any) {
-      setTestResult(prev => prev + `❌ Registration failed: ${error.message}\n`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setTestResult(prev => prev + `❌ Registration failed: ${errorMessage}\n`);
       
-      if (error.response) {
-        setTestResult(prev => prev + `   HTTP Status: ${error.response.status}\n`);
-        setTestResult(prev => prev + `   Response: ${JSON.stringify(error.response.data, null, 2)}\n`);
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response: { status: number; data: unknown } };
+        setTestResult(prev => prev + `   HTTP Status: ${axiosError.response.status}\n`);
+        setTestResult(prev => prev + `   Response: ${JSON.stringify(axiosError.response.data, null, 2)}\n`);
       }
       
       setTestResult(prev => prev + '\nDebugging steps:\n');

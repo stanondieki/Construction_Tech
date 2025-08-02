@@ -98,7 +98,7 @@ export default function Home() {
               </h1>
               
               <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-                Transform your construction projects with UjenziIQ's real-time monitoring, 
+                Transform your construction projects with UjenziIQ&apos;s real-time monitoring, 
                 unified communication, and intelligent insights designed specifically for East African markets.
               </p>
               
@@ -398,8 +398,8 @@ export default function Home() {
                 ))}
               </div>
               <p className="text-gray-700 mb-6 italic">
-                "UjenziIQ has revolutionized how we manage our construction projects. 
-                The real-time monitoring and safety features have helped us reduce incidents by 85%."
+                &quot;UjenziIQ has revolutionized how we manage our construction projects. 
+                The real-time monitoring and safety features have helped us reduce incidents by 85%.&quot;
               </p>
               <div className="flex items-center">
                 <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold mr-4">
@@ -419,8 +419,8 @@ export default function Home() {
                 ))}
               </div>
               <p className="text-gray-700 mb-6 italic">
-                "The unified communication system has been game-changing for our distributed teams. 
-                We can now coordinate effectively even in remote areas."
+                &quot;The unified communication system has been game-changing for our distributed teams. 
+                We can now coordinate effectively even in remote areas.&quot;
               </p>
               <div className="flex items-center">
                 <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center text-white font-bold mr-4">
@@ -440,8 +440,8 @@ export default function Home() {
                 ))}
               </div>
               <p className="text-gray-700 mb-6 italic">
-                "Since implementing UjenziIQ, we've delivered projects 30% faster and reduced costs by 25%. 
-                The ROI has been exceptional."
+                &quot;Since implementing UjenziIQ, we&apos;ve delivered projects 30% faster and reduced costs by 25%. 
+                The ROI has been exceptional.&quot;
               </p>
               <div className="flex items-center">
                 <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold mr-4">
