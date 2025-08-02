@@ -11,25 +11,20 @@ class Command(BaseCommand):
     help = 'Creates sample data for development'
 
     def handle(self, *args, **options):
-        # Create admin user for deployment (admin@ujenziiq.com)
+        # Get or create users
         try:
-            admin_user = User.objects.get(email='admin@ujenziiq.com')
-            self.stdout.write(f'Admin user already exists: {admin_user.email}')
+            admin_user = User.objects.get(username='admin')
         except User.DoesNotExist:
-            admin_user = User.objects.create_superuser(
+            admin_user = User.objects.create_user(
                 username='admin',
-                email='admin@ujenziiq.com',
+                email='admin@contech.com',
                 password='admin123',
                 first_name='Admin',
                 last_name='User'
             )
             admin_user.user_type = 'admin'
-            admin_user.is_staff = True
-            admin_user.is_superuser = True
             admin_user.save()
-            self.stdout.write(f'Created admin user: {admin_user.email}')
 
-        # Get or create other users
         try:
             manager_user = User.objects.get(username='manager')
         except User.DoesNotExist:

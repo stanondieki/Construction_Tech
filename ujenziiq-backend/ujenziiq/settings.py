@@ -28,7 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-ymoo0$2w8p=8(o=^h8d$7vrv((5_*9ia&(%yvv)i^_20^jn%wh')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
+DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost,192.168.56.1,0.0.0.0,django-app-production-8e3a.up.railway.app,.vercel.app').split(',')
 
@@ -97,15 +97,11 @@ if os.getenv('DATABASE_URL'):
         'default': dj_database_url.parse(os.getenv('DATABASE_URL'))
     }
 else:
-    # Development database (SQLite) - ensure directory exists
-    import os
-    db_path = BASE_DIR / "db.sqlite3"
-    os.makedirs(db_path.parent, exist_ok=True)
-    
+    # Development database (SQLite)
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
-            "NAME": db_path,
+            "NAME": BASE_DIR / "db.sqlite3",
         }
     }
 
@@ -179,14 +175,15 @@ CORS_ALLOWED_ORIGINS = [
     "http://192.168.56.1:3002",
     "https://ujenziiq-5bq30ug80-stanondiekis-projects.vercel.app",  # Your first Vercel URL
     "https://ujenziiq-qo3kwybu5-stanondiekis-projects.vercel.app",  # Your updated Vercel URL
-    "https://ujenziiq-mlt0f9h2r-stanondiekis-projects.vercel.app",  # Previous Vercel URL
-    "https://ujenziiq-l3nmlwo7q-stanondiekis-projects.vercel.app",  # Another Vercel URL
-    "https://ujenziiq-bhcc3ns4n-stanondiekis-projects.vercel.app",  # Latest Vercel URL
-    "https://ujenziiq.vercel.app",  # Production domain
+    "https://ujenziiq-9k3vf7kev-stanondiekis-projects.vercel.app",  # Your new Vercel URL
+    "https://ujenziiq-pnoe5rt86-stanondiekis-projects.vercel.app",  # Your latest Vercel URL
+    "https://ujenziiq-i8891q4w2-stanondiekis-projects.vercel.app",  # Your current Vercel URL
+    "https://ujenziiq-f967qgecw-stanondiekis-projects.vercel.app",  # Your newest Vercel URL
+    "https://ujenziiq.vercel.app",  # Production URL
 ]
 
 # Allow all origins for development (more permissive)
-CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only allow all origins in development
+CORS_ALLOW_ALL_ORIGINS = True  # Temporarily allow all origins for debugging
 
 # Media Files
 MEDIA_URL = '/media/'

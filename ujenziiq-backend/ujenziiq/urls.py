@@ -19,6 +19,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.http import JsonResponse
 from rest_framework.routers import DefaultRouter
 
 from users.views import UserViewSet
@@ -29,6 +30,10 @@ from projects.views import (
 from communication.views import (
     NotificationViewSet, MessageViewSet, CommentViewSet, SMSLogViewSet
 )
+
+# Simple health check view
+def health_check(request):
+    return JsonResponse({"status": "ok", "message": "UjenziIQ Backend is running"})
 
 # Create a router and register our viewsets with it
 router = DefaultRouter()
@@ -52,6 +57,7 @@ router.register(r'comments', CommentViewSet)
 router.register(r'sms-logs', SMSLogViewSet)
 
 urlpatterns = [
+    path('', health_check, name='health_check'),
     path("admin/", admin.site.urls),
     path('api/', include(router.urls)),
     path('api/auth/', include('djoser.urls')),
