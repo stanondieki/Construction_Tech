@@ -8,22 +8,25 @@ sys.path.insert(0, project_dir)
 
 def application(environ, start_response):
     """
-    WSGI application with Django integration
+    WSGI application with Django integration and proper CORS
     """
     try:
         method = environ.get('REQUEST_METHOD', 'GET')
         path = environ.get('PATH_INFO', '/')
+        origin = environ.get('HTTP_ORIGIN', '')
         
-        # Handle CORS preflight requests
+        # Always include CORS headers
+        cors_headers = [
+            ('Access-Control-Allow-Origin', '*'),
+            ('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'),
+            ('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With'),
+            ('Access-Control-Allow-Credentials', 'true'),
+        ]
+        
+        # Handle CORS preflight requests first
         if method == 'OPTIONS':
             status = '200 OK'
-            headers = [
-                ('Content-Type', 'application/json'),
-                ('Access-Control-Allow-Origin', '*'),
-                ('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'),
-                ('Access-Control-Allow-Headers', 'Content-Type, Authorization'),
-                ('Content-Length', '0'),
-            ]
+            headers = [('Content-Type', 'application/json')] + cors_headers + [('Content-Length', '0')]
             start_response(status, headers)
             return [b'']
         
@@ -33,7 +36,7 @@ def application(environ, start_response):
                 "status": "ok", 
                 "message": "UjenziIQ Backend is running",
                 "version": "1.0.0",
-                "django_status": "loading..."
+                "cors": "enabled"
             }
             
         # Simple API info - no Django needed  
@@ -59,11 +62,24 @@ def application(environ, start_response):
                 import django
                 django.setup()
                 
+                # Run migrations to set up database
+                from django.core.management import execute_from_command_line
+                try:
+                    execute_from_command_line(['manage.py', 'migrate', '--run-syncdb'])
+                except:
+                    pass  # Ignore migration errors for now
+                
                 from django.core.wsgi import get_wsgi_application
                 django_app = get_wsgi_application()
                 
-                # Delegate to Django
-                return django_app(environ, start_response)
+                # Create a custom environ that includes our CORS handling
+                def cors_start_response(status, headers):
+                    # Add CORS headers to Django's response
+                    headers.extend(cors_headers)
+                    return start_response(status, headers)
+                
+                # Delegate to Django with CORS headers
+                return django_app(environ, cors_start_response)
                 
             except Exception as django_error:
                 # Fallback response if Django fails
@@ -81,22 +97,19 @@ def application(environ, start_response):
                 "method": method
             }
         
-        # Return JSON response
+        # Return JSON response with CORS headers
         response_body = json.dumps(response_data, indent=2).encode('utf-8')
         status = '200 OK'
         headers = [
             ('Content-Type', 'application/json'),
-            ('Access-Control-Allow-Origin', '*'),
-            ('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS'),
-            ('Access-Control-Allow-Headers', 'Content-Type, Authorization'),
             ('Content-Length', str(len(response_body))),
-        ]
+        ] + cors_headers
         
         start_response(status, headers)
         return [response_body]
         
     except Exception as e:
-        # Global error handling
+        # Global error handling with CORS
         error_response = {
             "error": "Internal Server Error",
             "message": str(e),
@@ -108,9 +121,8 @@ def application(environ, start_response):
         status = '500 Internal Server Error'
         headers = [
             ('Content-Type', 'application/json'),
-            ('Access-Control-Allow-Origin', '*'),
             ('Content-Length', str(len(response_body))),
-        ]
+        ] + cors_headers
         
         start_response(status, headers)
         return [response_body]
