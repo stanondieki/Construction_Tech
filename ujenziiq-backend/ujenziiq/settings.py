@@ -89,21 +89,13 @@ WSGI_APPLICATION = "ujenziiq.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# Use PostgreSQL in production, SQLite in development
-if os.getenv('DATABASE_URL'):
-    # Production database (PostgreSQL)
-    import dj_database_url
-    DATABASES = {
-        'default': dj_database_url.parse(os.getenv('DATABASE_URL'))
+# Development database (SQLite) - always use SQLite for now
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3", 
+        "NAME": ":memory:",  # Use in-memory database for serverless
     }
-else:
-    # Development database (SQLite)
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
-    }
+}
 
 
 # Password validation
